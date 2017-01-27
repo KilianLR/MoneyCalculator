@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import moneycalculator.control.Command;
+import moneycalculator.model.Currency;
 import moneycalculator.ui.MoneyDialog;
 import moneycalculator.ui.MoneyDisplay;
 import moneycalculator.ui.swing.SwingMoneyDialog;
@@ -17,11 +18,13 @@ import moneycalculator.ui.swing.SwingMoneyDisplay;
 
 public class MainFrame extends JFrame {
 
-    private Map<String,Command> commands = new HashMap<>();
+    private final Currency[] currencies;
+    private final Map<String,Command> commands = new HashMap<>();
     private MoneyDialog moneyDialog;
     private MoneyDisplay moneyDisplay;
 
-    public MainFrame() {
+    public MainFrame(Currency[] currencies) {
+        this.currencies = currencies;
         this.setTitle("Money Calculator");
         this.setSize(400, 400);
         this.setLocationRelativeTo(null);
@@ -45,7 +48,7 @@ public class MainFrame extends JFrame {
     }
     
     private Component MoneyDialog() {
-        SwingMoneyDialog dialog = new SwingMoneyDialog();
+        SwingMoneyDialog dialog = new SwingMoneyDialog(currencies);
         moneyDialog = dialog;
         return dialog;
     }
