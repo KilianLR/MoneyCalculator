@@ -1,15 +1,22 @@
 package moneycalculator.ui.swing;
 
 import java.awt.Component;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import moneycalculator.model.Money;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import moneycalculator.model.Currency;
+import moneycalculator.model.Money;
 import moneycalculator.ui.MoneyDialog;
 
 public class SwingMoneyDialog extends JPanel implements MoneyDialog {
 
+    private String amount;
     private Currency currency;
     
     public SwingMoneyDialog() {
@@ -19,22 +26,66 @@ public class SwingMoneyDialog extends JPanel implements MoneyDialog {
     
     @Override
     public Money get() {
-        return new Money(0, currency);
+        return new Money(Double.parseDouble(amount), currency);
     }
 
     private Component amount() {
-        return new JTextField();
+        JTextField textField = new JTextField("100");
+        textField.setColumns(10);
+        textField.getDocument().addDocumentListener(amountChanged());
+        amount = textField.getText();
+        return textField;
     }
 
     private Component currency() {
-        return new JComboBox(currencies());
+        JComboBox combo = new JComboBox(currencies());
+        combo.addItemListener(currencyChanged());
+        currency = (Currency) combo.getSelectedItem();
+        return combo;
     }
 
     private Currency[] currencies() {
         return new Currency[] {
             new Currency("USD", "Dólar USA", "$"),
             new Currency("CAD", "Dólar Canadá", "$"),
-            new Currency("GBP", "Libra esterlina", "$")
+            new Currency("GBP", "Libra esterlina", "£")
+        };
+    }
+
+    private ItemListener currencyChanged() {
+        return new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.DESELECTED) return;
+                currency = (Currency) e.getItem();
+            }
+        };
+    }
+
+    private DocumentListener amountChanged() {
+        return new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                amountChanged(e.getDocument());
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                amountChanged(e.getDocument());
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                amountChanged(e.getDocument());
+            }
+            
+            private void amountChanged(Document document) {
+                try {
+                    amount = document.getText(0, document.getLength());
+                }
+                catch (BadLocationException ex) {
+                }
+            }
         };
     }
 }
